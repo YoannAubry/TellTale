@@ -184,7 +184,9 @@ export default function Home() {
                       <div className="flex flex-col border-l border-gray-100 bg-blue-50/50 rounded">
                         <span className="text-[10px] uppercase text-gray-400 font-bold">Vitesse</span>
                         <span className="font-bold text-black text-lg">{point.boatSpeedKnots ? point.boatSpeedKnots.toFixed(1) : '-'}</span>
-                        <span className="text-[10px] text-gray-500">SOG</span>
+                        <span className="text-[10px] text-gray-500">
+                           Cap {point.heading ? Math.round(point.heading) + '°' : '-'}
+                        </span>
                       </div>
 
                     </div>

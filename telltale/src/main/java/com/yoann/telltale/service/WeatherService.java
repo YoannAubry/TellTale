@@ -17,32 +17,21 @@ public class WeatherService {
     private final RestClient marineClient;
 
     public WeatherService(RestClient.Builder builder) {
-        // Client Météo (Vent, Ciel) - Gère Forecast et Archive
         this.weatherClient = builder.baseUrl("https://api.open-meteo.com/v1").build();
-        // Client Marine (Vagues, Courant) - Gère Forecast et Archive
         this.marineClient = builder.baseUrl("https://marine-api.open-meteo.com/v1").build();
     }
 
-    /**
-     * Récupère TOUTE la météo (Vent, Ciel, Vagues, Courant) pour un point et une heure.
-     */
     public WeatherData getPointWeather(double lat, double lon, LocalDateTime dateTime) {
         LocalDate today = LocalDate.now();
         String dateStr = dateTime.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE);
         int hourIndex = dateTime.getHour();
-
-        // Si c'est dans le passé, on devrait changer l'URL de base pour "/archive"
-        // (Pour simplifier ici, on assume que c'est du Forecast/Futur pour le routage).
-        // Si tu veux gérer l'historique aussi, il faudra la logique de switch d'URL ici.
-        String weatherPath = "/forecast";
-        String marinePath = "/marine";
 
         // 1. Appel Météo (Vent + Ciel)
         CompletableFuture<WeatherData> weatherFuture = CompletableFuture.supplyAsync(() -> {
             try {
                 OpenMeteoResponse response = weatherClient.get()
                     .uri(uriBuilder -> uriBuilder
-                        .path(weatherPath)
+                        .path("/forecast")
                         .queryParam("latitude", lat)
                         .queryParam("longitude", lon)
                         .queryParam("hourly", "temperature_2m,weathercode,windspeed_10m,winddirection_10m")
@@ -55,11 +44,12 @@ public class WeatherService {
                 if (response != null && response.getHourly() != null) {
                     double windKmh = response.getHourly().getWindspeed10m().get(hourIndex);
                     int knots = (int) Math.round(windKmh * 0.54);
-                    String dir = convertDegreesToCardinal(response.getHourly().getWinddirection10m().get(hourIndex));
-                    String summary = decodeWeatherCode(response.getHourly().getWeathercode().get(hourIndex));
+                    
                     int windDeg = response.getHourly().getWinddirection10m().get(hourIndex);
                     String dirStr = convertDegreesToCardinal(windDeg);
-                    // On retourne juste la partie Météo remplie
+                    
+                    String summary = decodeWeatherCode(response.getHourly().getWeathercode().get(hourIndex));
+                    
                     return new WeatherData(knots, dirStr, windDeg, summary, null, null, null, null, null, null);
                 }
             } catch (Exception e) {
@@ -73,7 +63,7 @@ public class WeatherService {
             try {
                 MarineWeatherResponse response = marineClient.get()
                     .uri(uriBuilder -> uriBuilder
-                        .path(marinePath)
+                        .path("/marine")
                         .queryParam("latitude", lat)
                         .queryParam("longitude", lon)
                         .queryParam("hourly", "wave_height,wave_direction,ocean_current_velocity,ocean_current_direction")
@@ -86,20 +76,16 @@ public class WeatherService {
                 if (response != null && response.getHourly() != null) {
                     // Vagues
                     Double waveHeight = response.getHourly().getWaveHeight().get(hourIndex);
-                    String waveDir = convertDegreesToCardinal(response.getHourly().getWaveDirection().get(hourIndex).intValue());
-                    Double waveDirDouble = response.getHourly().getWaveDirection().get(hourIndex);
-                    int waveDeg = waveDirDouble.intValue();
+                    int waveDeg = response.getHourly().getWaveDirection().get(hourIndex).intValue();
                     String waveStr = convertDegreesToCardinal(waveDeg);
                     
-                    // Courant (km/h -> nds)
+                    // Courant
                     Double currentKmh = response.getHourly().getCurrentSpeed().get(hourIndex);
                     Double currentKnots = currentKmh * 0.54;
-                    String currentDir = convertDegreesToCardinal(response.getHourly().getCurrentDirection().get(hourIndex).intValue());
-                    Double curDirDouble = response.getHourly().getCurrentDirection().get(hourIndex);
-                    int curDeg = curDirDouble.intValue();
-                    String curStr = convertDegreesToCardinal(curDeg);
+                    int currentDeg = response.getHourly().getCurrentDirection().get(hourIndex).intValue();
+                    String currentStr = convertDegreesToCardinal(currentDeg);
 
-                    return new MarineData(waveHeight, waveStr, waveDeg, currentKnots, curStr, curDeg);
+                    return new MarineData(waveHeight, waveStr, waveDeg, currentKnots, currentStr, currentDeg);
                 }
             } catch (Exception e) {
                 System.err.println("Erreur Marine : " + e.getMessage());
@@ -122,12 +108,11 @@ public class WeatherService {
         }
     }
 
-    // DTO Interne pour tout transporter
     public record WeatherData(
-        Integer windKnots, String windDirStr, Integer windDirDeg, // Ajout Deg
+        Integer windKnots, String windDirStr, Integer windDirDeg,
         String summary,
-        Double waveHeight, String waveDirStr, Integer waveDirDeg, // Ajout Deg
-        Double currentKnots, String currentDirStr, Integer currentDirDeg // Ajout Deg
+        Double waveHeight, String waveDirStr, Integer waveDirDeg,
+        Double currentKnots, String currentDirStr, Integer currentDirDeg
     ) {}
 
     private record MarineData(
@@ -135,7 +120,6 @@ public class WeatherService {
         Double currentKnots, String currentDirStr, Integer currentDirDeg
     ) {}
 
-    // --- Utilitaires ---
     private String convertDegreesToCardinal(Integer degrees) {
         if (degrees == null) return null;
         String[] directions = {"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"};

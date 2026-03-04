@@ -27,4 +27,5 @@ export interface RoutePoint {
   waveDirection: string;
   waveDirectionDeg: number;
   boatSpeedKnots: number;
+  heading: number;
 }

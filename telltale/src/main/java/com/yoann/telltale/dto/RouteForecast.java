@@ -12,29 +12,28 @@ public class RouteForecast {
     private Double totalDistanceNm;
     private Double estimatedDurationHours;
     
-    private List<RoutePoint> points; // Les étapes du trajet
+    private List<RoutePoint> points;
 
     @Data
     public static class RoutePoint {
         private Double latitude;
         private Double longitude;
-        private LocalDateTime estimatedTime; // Heure de passage prévue
+        private LocalDateTime estimatedTime;
         
-        // Météo prévue à ce point et à cette heure
         private Integer windSpeedKnots;
-        private String windDirection; // N, NE...
+        private String windDirection;
         private Integer windDirectionDeg;
-        private String weatherSummary; // "Pluie", "Soleil"
-
+        private String weatherSummary;
+        
         private Double currentSpeedKnots;
         private String currentDirection;
-        private Integer currentDirectionDeg; 
-
+        private Integer currentDirectionDeg;
+        
         private Double waveHeight;
         private String waveDirection;
-        private Integer waveDirectionDeg; 
+        private Integer waveDirectionDeg;
         
-        private Double boatSpeedKnots; // La vitesse calculée à ce moment là
-
+        private Double boatSpeedKnots;
+        private Double heading;
     }
 }
