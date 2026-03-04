@@ -157,21 +157,27 @@ export default function Home() {
                       <div className="flex flex-col">
                         <span className="text-[10px] uppercase text-gray-400 font-bold">Vent</span>
                         <span className="font-bold text-blue-600">{point.windSpeedKnots ?? '-'} nds</span>
-                        <span className="text-xs text-gray-500">{point.windDirection}</span>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                          {point.windDirection} <span className="text-[10px] text-gray-400">({point.windDirectionDeg}°)</span>
+                        </span>
                       </div>
 
                       {/* Vagues */}
                       <div className="flex flex-col border-l border-gray-100">
                         <span className="text-[10px] uppercase text-gray-400 font-bold">Vagues</span>
                         <span className="font-bold text-indigo-600">{point.waveHeight ? point.waveHeight.toFixed(1) + 'm' : '-'}</span>
-                        <span className="text-xs text-gray-500">{point.waveDirection}</span>
+                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                          {point.waveDirection} <span className="text-[10px] text-gray-400">({point.waveDirectionDeg}°)</span>
+                        </span>
                       </div>
 
                       {/* Courant */}
                       <div className="flex flex-col border-l border-gray-100">
                         <span className="text-[10px] uppercase text-gray-400 font-bold">Courant</span>
                         <span className="font-bold text-teal-600">{point.currentSpeedKnots ? point.currentSpeedKnots.toFixed(1) + ' nds' : '-'}</span>
-                        <span className="text-xs text-gray-500">{point.currentDirection}</span>
+                        <span className="text-xs text-gray-500">
+                          {point.currentDirection} <span className="text-[10px] text-gray-400">({point.currentDirectionDeg}°)</span>
+                        </span>
                       </div>
 
                       {/* Vitesse Fond */}

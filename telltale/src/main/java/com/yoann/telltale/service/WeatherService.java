@@ -57,13 +57,15 @@ public class WeatherService {
                     int knots = (int) Math.round(windKmh * 0.54);
                     String dir = convertDegreesToCardinal(response.getHourly().getWinddirection10m().get(hourIndex));
                     String summary = decodeWeatherCode(response.getHourly().getWeathercode().get(hourIndex));
+                    int windDeg = response.getHourly().getWinddirection10m().get(hourIndex);
+                    String dirStr = convertDegreesToCardinal(windDeg);
                     // On retourne juste la partie Météo remplie
-                    return new WeatherData(knots, dir, summary, null, null, null, null);
+                    return new WeatherData(knots, dirStr, windDeg, summary, null, null, null, null, null, null);
                 }
             } catch (Exception e) {
                 System.err.println("Erreur Météo : " + e.getMessage());
             }
-            return new WeatherData(null, null, null, null, null, null, null);
+            return new WeatherData(null, null, null, null, null, null, null, null, null, null);
         });
 
         // 2. Appel Marine (Vagues + Courant)
@@ -85,18 +87,24 @@ public class WeatherService {
                     // Vagues
                     Double waveHeight = response.getHourly().getWaveHeight().get(hourIndex);
                     String waveDir = convertDegreesToCardinal(response.getHourly().getWaveDirection().get(hourIndex).intValue());
+                    Double waveDirDouble = response.getHourly().getWaveDirection().get(hourIndex);
+                    int waveDeg = waveDirDouble.intValue();
+                    String waveStr = convertDegreesToCardinal(waveDeg);
                     
                     // Courant (km/h -> nds)
                     Double currentKmh = response.getHourly().getCurrentSpeed().get(hourIndex);
                     Double currentKnots = currentKmh * 0.54;
                     String currentDir = convertDegreesToCardinal(response.getHourly().getCurrentDirection().get(hourIndex).intValue());
+                    Double curDirDouble = response.getHourly().getCurrentDirection().get(hourIndex);
+                    int curDeg = curDirDouble.intValue();
+                    String curStr = convertDegreesToCardinal(curDeg);
 
-                    return new MarineData(waveHeight, waveDir, currentKnots, currentDir);
+                    return new MarineData(waveHeight, waveStr, waveDeg, currentKnots, curStr, curDeg);
                 }
             } catch (Exception e) {
                 System.err.println("Erreur Marine : " + e.getMessage());
             }
-            return new MarineData(null, null, null, null);
+            return new MarineData(null, null, null, null, null, null);
         });
 
         // 3. Fusion des résultats
@@ -105,26 +113,26 @@ public class WeatherService {
             MarineData m = marineFuture.get();
             
             return new WeatherData(
-                w.windKnots, w.windDir, w.summary, // Météo
-                m.waveHeight, m.waveDir,           // Vagues
-                m.currentKnots, m.currentDir       // Courant
+                w.windKnots, w.windDirStr, w.windDirDeg, w.summary,
+                m.waveHeight, m.waveDirStr, m.waveDirDeg,
+                m.currentKnots, m.currentDirStr, m.currentDirDeg
             );
         } catch (Exception e) {
-            return new WeatherData(null, null, null, null, null, null, null);
+            return new WeatherData(null, null, null, null, null, null, null, null, null, null);
         }
     }
 
     // DTO Interne pour tout transporter
     public record WeatherData(
-        Integer windKnots, String windDir, String summary,
-        Double waveHeight, String waveDir,
-        Double currentKnots, String currentDir
+        Integer windKnots, String windDirStr, Integer windDirDeg, // Ajout Deg
+        String summary,
+        Double waveHeight, String waveDirStr, Integer waveDirDeg, // Ajout Deg
+        Double currentKnots, String currentDirStr, Integer currentDirDeg // Ajout Deg
     ) {}
 
-    // DTO Interne temporaire pour la partie Marine
     private record MarineData(
-        Double waveHeight, String waveDir,
-        Double currentKnots, String currentDir
+        Double waveHeight, String waveDirStr, Integer waveDirDeg,
+        Double currentKnots, String currentDirStr, Integer currentDirDeg
     ) {}
 
     // --- Utilitaires ---

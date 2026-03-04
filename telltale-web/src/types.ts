@@ -18,10 +18,13 @@ export interface RoutePoint {
   estimatedTime: string;
   windSpeedKnots: number;
   windDirection: string;
+  windDirectionDeg: number;
   weatherSummary: string;
   currentSpeedKnots: number;
   currentDirection: string;
+  currentDirectionDeg: number;
   waveHeight: number;
   waveDirection: string;
+  waveDirectionDeg: number;
   boatSpeedKnots: number;
 }

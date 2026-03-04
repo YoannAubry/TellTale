@@ -98,13 +98,13 @@ public class RoutingService {
             // --- A. Récupération des conditions ---
             // On utilise la météo du dernier point connu pour calculer ce tronçon
             Integer wind = (weather != null && weather.windKnots() != null) ? weather.windKnots() : 5;
-            String windDir = (weather != null) ? weather.windDir() : "N";
+            String windDir = (weather != null) ? weather.windDirStr() : "N";
             
             Double wave = (weather != null) ? weather.waveHeight() : 0.0;
-            String waveDir = (weather != null) ? weather.waveDir() : null;
+            String waveDir = (weather != null) ? weather.waveDirStr() : null;
             
             Double currentKnots = (weather != null) ? weather.currentKnots() : 0.0;
-            String currentDirStr = (weather != null) ? weather.currentDir() : null;
+            String currentDirStr = (weather != null) ? weather.currentDirStr() : null;
 
             // --- B. Calcul Vitesse Surface (STW) ---
             // Utilise les Polaires + Impact des vagues
@@ -174,14 +174,17 @@ public class RoutingService {
         
         if (weather != null) {
             p.setWindSpeedKnots(weather.windKnots());
-            p.setWindDirection(weather.windDir());
+            p.setWindDirection(weather.windDirStr());
+            p.setWindDirectionDeg(weather.windDirDeg());
             p.setWeatherSummary(weather.summary());
             p.setCurrentSpeedKnots(weather.currentKnots());
-            p.setCurrentDirection(weather.currentDir());
+            p.setCurrentDirection(weather.currentDirStr());
+            p.setCurrentDirectionDeg(weather.currentDirDeg());
             
             // --- VAGUES ---
             p.setWaveHeight(weather.waveHeight());
-            p.setWaveDirection(weather.waveDir());
+            p.setWaveDirection(weather.waveDirStr());
+            p.setWaveDirectionDeg(weather.waveDirDeg());
         }
         return p;
     }
