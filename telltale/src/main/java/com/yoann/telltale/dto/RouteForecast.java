@@ -24,5 +24,14 @@ public class RouteForecast {
         private Integer windSpeedKnots;
         private String windDirection; // N, NE...
         private String weatherSummary; // "Pluie", "Soleil"
+
+        private Double currentSpeedKnots;
+        private String currentDirection;
+
+        private Double waveHeight;
+        private String waveDirection;
+        
+        private Double boatSpeedKnots; // La vitesse calculée à ce moment là
+
     }
 }
