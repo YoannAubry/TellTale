@@ -1,0 +1,14 @@
+# Ignore le dossier de données de la base de données Docker
+data-db/
+postgres-data/
+
+# Ignore les fichiers de config IDE
+.vscode/
+.idea/
+
+# Ignore les fichiers compilés Java (dans les sous-dossiers)
+**/target/
+**/*.class
+
+# Ignore les logs
+*.log
