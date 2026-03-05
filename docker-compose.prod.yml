@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # 1. Base de données
+  db:
+    image: postgres:16
+    container_name: telltale-db-prod
+    restart: always
+    environment:
+      POSTGRES_DB: telltale
+      POSTGRES_USER: captain
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data_prod:/var/lib/postgresql/data
+    networks:
+      - telltale-net
+
+  # 2. Backend API
+  api:
+    build: 
+      context: ./telltale
+      dockerfile: Dockerfile
+    container_name: telltale-api-prod
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/telltale
+      SPRING_DATASOURCE_USERNAME: captain
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      # Autorise le frontend sur le port 3001
+      ALLOWED_ORIGINS: "http://localhost:3001,http://${SERVER_IP}:3001"
+    depends_on:
+      - db
+    networks:
+      - telltale-net
+
+  # 3. Frontend Web
+  web:
+    build:
+      context: ./telltale-web
+      dockerfile: Dockerfile
+    container_name: telltale-web-prod
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      # L'URL de l'API doit être accessible depuis le navigateur du client
+      NEXT_PUBLIC_API_URL: "http://${SERVER_IP}:8080/api"
+    depends_on:
+      - api
+    networks:
+      - telltale-net
+
+volumes:
+  db_data_prod:
+
+networks:
+  telltale-net:

@@ -31,6 +31,11 @@ export default function Map({ waypoints, selectedRoute, onWaypointClick, calcula
         attribution='&copy; OpenStreetMap'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+
+      {/* 2. Couche Marine (Balises/Phares) - OpenSeaMap */}
+      <TileLayer
+        url="https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png"
+      />
       <MapUpdater center={center} />
 
       {/* 1. Afficher tous les Waypoints */}

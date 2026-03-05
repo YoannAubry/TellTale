@@ -50,6 +50,11 @@ public class BoatPerformanceService {
         // Vitesse Polaire
         double baseSpeed = getPolarSpeed(twa, windKnots);
 
+        // --- NOUVEAU : Facteur de Réalisme (Croisière) ---
+        // On considère qu'on navigue à 85% du potentiel max
+        double efficiencyFactor = 0.85; 
+        baseSpeed *= efficiencyFactor;
+
         // Impact Vagues (Modèle "Doux")
         if (waveHeight != null && waveHeight > 0.5 && waveDirDeg != null) {
             double waveAngle = Math.abs(waveDirDeg - boatHeading);
